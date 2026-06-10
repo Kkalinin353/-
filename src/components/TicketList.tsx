@@ -1,12 +1,16 @@
 import type { Ticket } from '../types';
+import { DifficultyStars } from './DifficultyStars';
+
+const TOTAL_TICKETS = 60;
 
 interface TicketListProps {
   tickets: Ticket[];
   completed: Set<number>;
   onSelect: (id: number) => void;
+  onHardcore: () => void;
 }
 
-export function TicketList({ tickets, completed, onSelect }: TicketListProps) {
+export function TicketList({ tickets, completed, onSelect, onHardcore }: TicketListProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-violet-50">
       <div className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
@@ -22,7 +26,7 @@ export function TicketList({ tickets, completed, onSelect }: TicketListProps) {
           </p>
           <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm ring-1 ring-slate-200">
             <span className="text-emerald-500 font-bold">{completed.size}</span>
-            <span>из {tickets.length} билетов пройдено</span>
+            <span>из {TOTAL_TICKETS} билетов пройдено</span>
           </div>
         </header>
 
@@ -50,9 +54,12 @@ export function TicketList({ tickets, completed, onSelect }: TicketListProps) {
                     {done ? '✓' : ticket.id}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                      Билет {ticket.id}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                        Билет {ticket.id}
+                      </p>
+                      <DifficultyStars level={ticket.difficulty} className="text-xs" />
+                    </div>
                     <p className="text-sm font-medium text-slate-800 leading-snug line-clamp-3">
                       {ticket.title}
                     </p>
@@ -61,6 +68,18 @@ export function TicketList({ tickets, completed, onSelect }: TicketListProps) {
               </button>
             );
           })}
+        </div>
+
+        <div className="mt-8">
+          <button
+            onClick={onHardcore}
+            className="w-full rounded-2xl border border-rose-200 bg-gradient-to-r from-rose-500 to-orange-500 p-5 text-center shadow-sm transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
+          >
+            <p className="text-lg font-bold text-white">🔥 Хардкор режим</p>
+            <p className="mt-1 text-sm text-rose-50">
+              Все 600 вопросов подряд. Одна ошибка — начинаем сначала.
+            </p>
+          </button>
         </div>
       </div>
     </div>

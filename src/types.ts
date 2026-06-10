@@ -8,5 +8,6 @@ export interface Question {
 export interface Ticket {
   id: number;
   title: string;
+  difficulty: 1 | 2 | 3;
   questions: Question[];
 }

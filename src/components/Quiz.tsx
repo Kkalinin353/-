@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import type { Question, Ticket } from '../types';
+import type { Question } from '../types';
 import { ProgressBar } from './ProgressBar';
-
-const ROUND_SIZE = 10;
+import { DifficultyStars } from './DifficultyStars';
 
 function shuffle<T>(arr: T[]): T[] {
   const copy = [...arr];
@@ -13,15 +12,20 @@ function shuffle<T>(arr: T[]): T[] {
   return copy;
 }
 
-interface RoundQuestion extends Question {
+export interface PoolQuestion extends Question {
+  ticketId?: number;
+  ticketDifficulty?: 1 | 2 | 3;
+}
+
+interface RoundQuestion extends PoolQuestion {
   shuffledOptions: { text: string; isCorrect: boolean }[];
 }
 
-function buildRound(pool: Question[]): RoundQuestion[] {
-  const size = Math.min(ROUND_SIZE, pool.length);
+function buildRound(pool: PoolQuestion[], roundSize: number): RoundQuestion[] {
+  const size = Math.min(roundSize, pool.length);
   const picked = shuffle(pool).slice(0, size);
-  // if pool smaller than ROUND_SIZE, fill up by repeating random questions
-  while (picked.length < ROUND_SIZE) {
+  // if pool smaller than roundSize, fill up by repeating random questions
+  while (picked.length < roundSize) {
     picked.push(pool[Math.floor(Math.random() * pool.length)]);
   }
   return picked.map((q) => ({
@@ -33,13 +37,17 @@ function buildRound(pool: Question[]): RoundQuestion[] {
 }
 
 interface QuizProps {
-  ticket: Ticket;
+  pool: PoolQuestion[];
+  roundSize: number;
+  headerLabel: string;
+  headerTitle: string;
+  restartMessage: string;
   onExit: () => void;
   onComplete: () => void;
 }
 
-export function Quiz({ ticket, onExit, onComplete }: QuizProps) {
-  const [round, setRound] = useState<RoundQuestion[]>(() => buildRound(ticket.questions));
+export function Quiz({ pool, roundSize, headerLabel, headerTitle, restartMessage, onExit, onComplete }: QuizProps) {
+  const [round, setRound] = useState<RoundQuestion[]>(() => buildRound(pool, roundSize));
   const [index, setIndex] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
@@ -59,7 +67,7 @@ export function Quiz({ ticket, onExit, onComplete }: QuizProps) {
 
     if (!isCorrect) {
       // restart the whole round with fresh random questions
-      setRound(buildRound(ticket.questions));
+      setRound(buildRound(pool, roundSize));
       setIndex(0);
       setCorrectCount(0);
       setSelected(null);
@@ -102,7 +110,7 @@ export function Quiz({ ticket, onExit, onComplete }: QuizProps) {
             ← К списку билетов
           </button>
           <div className="text-xs font-semibold uppercase tracking-widest text-indigo-500">
-            Билет {ticket.id}
+            {headerLabel}
           </div>
         </div>
 
@@ -110,8 +118,14 @@ export function Quiz({ ticket, onExit, onComplete }: QuizProps) {
           <ProgressBar current={correctCount} total={total} />
         </div>
 
-        <h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-1">{ticket.title}</h2>
-        <p className="text-sm text-slate-400 mb-6">Вопрос {index + 1} из {total}</p>
+        <div className="flex items-center gap-2 mb-1">
+          <h2 className="text-lg sm:text-xl font-bold text-slate-900">{headerTitle}</h2>
+          {current.ticketDifficulty && <DifficultyStars level={current.ticketDifficulty} />}
+        </div>
+        <p className="text-sm text-slate-400 mb-6">
+          Вопрос {index + 1} из {total}
+          {current.ticketId !== undefined ? ` · Билет ${current.ticketId}` : ''}
+        </p>
 
         <div className="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 p-5 sm:p-6 mb-5">
           <p className="text-base sm:text-lg font-medium text-slate-800 leading-relaxed">
@@ -145,7 +159,7 @@ export function Quiz({ ticket, onExit, onComplete }: QuizProps) {
               </>
             ) : (
               <>
-                <p className="font-semibold">Неправильно. Все вопросы билета начнутся заново.</p>
+                <p className="font-semibold">Неправильно. {restartMessage}</p>
                 <p className="mt-1 font-normal">{current.explanation}</p>
               </>
             )}

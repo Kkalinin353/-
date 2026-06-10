@@ -1,25 +1,21 @@
-import type { Ticket } from '../types';
-
 interface CompletionProps {
-  ticket: Ticket;
+  title: string;
+  subtitle: string;
+  message: string;
   onRetry: () => void;
   onExit: () => void;
 }
 
-export function Completion({ ticket, onRetry, onExit }: CompletionProps) {
+export function Completion({ title, subtitle, message, onRetry, onExit }: CompletionProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-violet-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md rounded-3xl bg-white shadow-lg ring-1 ring-slate-200 p-8 text-center">
         <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-3xl">
           🎉
         </div>
-        <h2 className="text-2xl font-bold text-slate-900 mb-2">Билет освоен!</h2>
-        <p className="text-slate-500 mb-1">
-          Билет {ticket.id}. {ticket.title}
-        </p>
-        <p className="text-slate-500 mb-8">
-          Вы ответили правильно на 10 вопросов подряд.
-        </p>
+        <h2 className="text-2xl font-bold text-slate-900 mb-2">{title}</h2>
+        <p className="text-slate-500 mb-1">{subtitle}</p>
+        <p className="text-slate-500 mb-8">{message}</p>
         <div className="flex flex-col gap-3">
           <button
             onClick={onExit}
