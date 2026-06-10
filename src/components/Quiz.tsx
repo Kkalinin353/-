@@ -134,13 +134,21 @@ export function Quiz({ ticket, onExit, onComplete }: QuizProps) {
 
         {answered && (
           <div
-            className={`mt-5 rounded-xl p-4 text-sm font-semibold ${
+            className={`mt-5 rounded-xl p-4 text-sm ${
               isCorrect ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
             }`}
           >
-            {isCorrect
-              ? 'Верно!'
-              : 'Неправильно. Все вопросы билета начнутся заново.'}
+            {isCorrect ? (
+              <>
+                <p className="font-semibold">Верно!</p>
+                <p className="mt-1 font-normal">Ещё запомните: {current.explanation}</p>
+              </>
+            ) : (
+              <>
+                <p className="font-semibold">Неправильно. Все вопросы билета начнутся заново.</p>
+                <p className="mt-1 font-normal">{current.explanation}</p>
+              </>
+            )}
           </div>
         )}
 
